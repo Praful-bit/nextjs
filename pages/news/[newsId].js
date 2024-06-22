@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
+import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React from 'react'
 
@@ -15,6 +16,7 @@ const newsId = () => {
   return (
     <div>
       post : {newsId}
+      <p><Link href="/news/something">hey</Link></p>
     </div>
   )
 }

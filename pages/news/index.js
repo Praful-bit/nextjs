@@ -1,8 +1,12 @@
+import Link from 'next/link'
 import React from 'react'
 
 const index = () => {
   return (
-    <div>index</div>
+    <div>
+      <h1>index</h1>
+      <p><Link href="/news/newsid">hey</Link></p>
+    </div>
   )
 }
 
