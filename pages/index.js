@@ -1,52 +1,115 @@
-import Image from "next/image";
-import { Inter } from "next/font/google";
-import { useState } from "react";
-
-const inter = Inter({ subsets: ["latin"] });
+import { useEffect, useState } from "react";
+import Link from "next/link";
 
 export default function Home() {
-const [title,setTitle] = useState("")
-async function addMeetUpHandler(){
-  const res = await fetch(`/api/new-meetup`,{
-    method:"POST",
-    body:JSON.stringify({
-     title:title
-    }),
-    headers:{
-      'Content-Type':"application/json"
-    },
-  })
-  const data = res.json()
-  console.log(data)
-}
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [todos, setTodos] = useState([]);
+
+  const addMeetUpHandler = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`/api/new-meetup`, {
+        method: "POST",
+        body: JSON.stringify({
+          title: title,
+          description: description,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await res.json();
+      console.log(data);
+      setTitle("");
+      setDescription("");
+    } catch (error) {
+      console.error("Failed to add new todo", error);
+    }
+  };
+
+  const getTodos = async () => {
+    try {
+      const res = await fetch(`/api/new-meetup`);
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setTodos(data);
+        console.log(data)
+      } else {
+        console.error("Unexpected data format", data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch todos", error);
+    }
+  };
+ console.log(todos)
+  useEffect(() => {
+    getTodos();
+  }, []);
 
   return (
-    <main
-      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
-    >
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <Image
-          src="/vercel.svg"
-          alt="Vercel Logo"
-          className="dark:invert"
-          width={100}
-          height={24}
-          priority
-        />
-        <input className="p-2 text-black mt-4 mr-2" type="text" onChange={(e)=>setTitle(e.target.value)}/>
-        <button className="bg-blue-400 px-2 py-2 rounded-lg" onClick={addMeetUpHandler}>hey i am here</button>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700/10 after:dark:from-sky-900 after:dark:via-[#0141ff]/40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-    </main>
+    <>
+      <header className="flex bg-violet-800 py-3 px-24 flex-row justify-between items-center w-full">
+        <div>
+          <h1 className="font-serif text-4xl font-bold text-white">ToDo</h1>
+        </div>
+        <div>
+          <Link
+            className="hover:underline hover:text-orange-500 pr-6 text-2xl text-white"
+            href="/about"
+          >
+            About
+          </Link>
+          <Link
+            className="hover:underline hover:text-orange-500 pr-6 text-2xl text-white"
+            href="/news/something"
+          >
+            Some-Thing
+          </Link>
+        </div>
+      </header>
+      <main className="flex items-center justify-center min-h-screen bg-gray-900 w-full">
+        <section className="flex flex-col bg-white p-8 rounded-lg w-full max-w-2xl">
+          <form onSubmit={addMeetUpHandler} className="space-y-6">
+            <div>
+              <label className="block text-gray-700 font-medium">Title</label>
+              <input
+                type="text"
+                className="text-black py-2 px-3 border border-gray-300 rounded-md w-full"
+                value={title}
+                placeholder="Enter Your Title"
+                onChange={(e) => setTitle(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 font-medium">
+                Description
+              </label>
+              <input
+                type="text"
+                className="text-black py-2 px-3 border border-gray-300 rounded-md w-full"
+                value={description}
+                placeholder="Enter Your Description"
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </div>
+            <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-xl">
+              Submit
+            </button>
+          </form>
+          <div className="mt-6">
+            <h2 className="text-2xl font-semibold">Todos</h2>
+            <ul className="space-y-2">
+              {todos.map((todo) => (
+                <li key={todo.id} className="border-b border-gray-300 py-2">
+                  <h3 className="text-xl text-black">{todo.data.title}</h3>
+                  <p className="text-black">{todo.data.description}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      </main>
+    </>
   );
 }
